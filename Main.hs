@@ -1,4 +1,4 @@
-{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE DeriveDataTypeable, TupleSections #-}
 module Main
     (
       main
@@ -32,17 +32,33 @@ data GOL s = GOL
 
 sample = GOL
   {
-    board = M.fromList [((x,y),0) | x<-[1..10], y<-[1..10]]
-  , vfunc = undefined
-  , neighbours = undefined
+    board = M.fromList [((x,y),1) | x<-[1..10], y<-[1..10]]
+  , vfunc = sum
+  , neighbours = \l -> [(1,1), l]
   }
 
 main = do
   options <- cmdArgs options
-  putStrLn "hello"
+  print (run 2)
 
-run :: Loc -> Int
-run loc = evalState (lookup loc) sample
+--run :: [(Loc, Int)]
+run n = evalState (sequence_ (replicate n compute) >> lookup (1,1)) sample
 
 lookup :: Loc -> St s s
 lookup loc = gets (fromJust.M.lookup loc.board)
+
+getNeighbours :: Loc -> St s [Loc]
+getNeighbours loc = gets (flip neighbours loc)
+
+newCellVal :: Loc -> St s s
+newCellVal loc = do
+    vals <- getNeighbours loc >>= mapM lookup
+    gets (flip vfunc vals)
+
+compute :: St s ()
+compute = do
+    ks <- gets (M.keys.board)
+    vals <- mapM (\k -> liftM (k,) $ newCellVal k) ks
+    modify (\st -> st{board=M.fromList vals})
+
+--newcellval = getN loc >>= \ns -> mapM lookup ns >>= \vals -> get >>= \st -> 
