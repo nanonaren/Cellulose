@@ -51,7 +51,7 @@ Executable cellulose
   Main-is:             Main.hs
   
   -- Packages needed in order to build this package.
-  Build-depends:       base >= 3, containers >= 0.3, mtl >= 2.0, cmdargs >= 0.6, ansi-wl-pprint >= 0.6.3
+  Build-depends:       base >= 3, containers >= 0.3, mtl >= 2.0, cmdargs >= 0.6, ansi-wl-pprint >= 0.6.3, ansi-terminal >= 0.5, process >= 1.0
   
   -- Modules not exported by this package.
   -- Other-modules:       
