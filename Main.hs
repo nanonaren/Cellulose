@@ -19,10 +19,15 @@ type Board s = M.Map Loc s
 
 data Options = Options
   {
+    iterations :: Int
+  , steptime :: Double
   } deriving (Data,Typeable)
 
 options = Options
   {
+    iterations = def &= help "Number of iterations" &= typ "INT"
+  , steptime = def &= help "Time to pause between iterations in seconds"
+                   &= typ "DOUBLE"
   } &= program "gol"
     &= summary "Game of Life"
     &= details ["http://github.com/nanonaren/Cellulose"]
@@ -49,17 +54,18 @@ sample = GOL
   }
 
 main = do
-  options <- cmdArgs options
+  args <- cmdArgs options
   display 0 (board sample) sRows sCols
-  run 20
+  run args
 
-run n = foldM_ f sample [1..n]
+run args = foldM_ f sample [1..iterations args]
     where f s i = do
             let s' = execState compute s
             clear (numRows s') (numCols s')
             display i (board s') (numRows s') (numCols s')
-            system "sleep 0.5"
+            sleep
             return s'
+          sleep = system $ "sleep " ++ show (steptime args)
 
 display i brd nrows ncols = print $ createDoc i brd nrows ncols
 clear nrows ncols = do
